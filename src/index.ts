@@ -20,14 +20,15 @@ for (let i: boolean = false; i === false;) {
 
 
         if (newWords[1] === 'raise') {
-          const changePrice = Number(readlineSync.question('Введите цену\n '))
-          if (changePrice > 0) {
-            a.raise(changePrice)
+          const changePrice = readlineSync.question('Введите цену, если нужно поднятия на фиксированное значние, напишите "без цены" \n ')
+          if (Number(changePrice) > 0) {
+            a.raise(Number(changePrice))
             console.log('Цена повышена на ' + changePrice)
 
+          } else if (changePrice === 'без цены') {
+            a.raise(100)
           } else {
             console.log('Введено меньше нуля или не число')
-
           }
           console.log('Вы выбрали raise')
 
