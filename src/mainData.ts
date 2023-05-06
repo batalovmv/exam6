@@ -1,10 +1,11 @@
+import * as readlineSync from "readline-sync";
 abstract class IProduct {
   id: number;
   name: string;
   price: number;
   honoraryСode?: any;
   state?: State
-  stringState: string
+  stringState?: string
 }
 
 class Product extends IProduct {
@@ -20,12 +21,12 @@ class Product extends IProduct {
 }
 
 abstract class State {
-  public name: string
-  public stateData: StateData;
+  
+  public stateData!: StateData;
   public setDocument(document: StateData): void {
     this.stateData = document;
   }
-  public abstract raisePrice(): void;
+  public abstract raisePrice(price:number): void;
   public abstract setUp(): void;
   public abstract setOff(): void;
   public abstract giveToTheWinner(): void;
@@ -37,13 +38,17 @@ class StateData extends IProduct {
     this.id = id
     this.name = products[id - 1].name
     this.price = products[id - 1].price
+    this.stringState = products[id - 1].stringState
     if (this.stringState === 'sold') {
       this.state = new SoldState();
     } else if (this.stringState === 'sale') { this.state = new ForSaleState() }
     else if (this.stringState === 'stock') { this.state = new InStockState() }
     else { this.state = new InStockState() }
-    products[id - 1].state = this.state
+    products[id - 1] = this
     this.changeState(this.state)
+   
+    
+    
   }
   public changeState(state: State): void {
     this.state = state;
@@ -53,8 +58,11 @@ class StateData extends IProduct {
     this.stringState = state
     products[this.id - 1].stringState = this.stringState
   }
-  public raise(): void {
-    this.state.raisePrice();
+  public changePrice(price:number){
+    this.price = this.price + price
+  }
+  public raise(price?:number): void {
+    this.state.raisePrice(price);
   }
   public up(): void {
     this.state.setUp();
@@ -74,8 +82,9 @@ class InStockState extends State {
   }
   public setUp(): void {
     console.log('Успех, статус изменен на НА ТОРГАХ');
-    this.stateData.changeState(new ForSaleState());
     this.stateData.changeStringState('sale')
+    this.stateData.changeState(new ForSaleState());
+    
 
 
   }
@@ -88,8 +97,9 @@ class InStockState extends State {
   }
 }
 class ForSaleState extends State {
-  public raisePrice(): void {
+  public raisePrice(price:number): void {
     console.log("успешное повышение цены на продукт, поднять цену на продукт.");
+        this.stateData.changePrice(price)
   }
   public setUp(): void {
     console.log('ошибка, продукт не может быть повторно выставлен на торги.');
@@ -98,16 +108,18 @@ class ForSaleState extends State {
   public giveToTheWinner(): void {
     if (this.stateData.price === 0) console.log('Нельзя отдать продукт бесплатно');
     else {
-      this.stateData.changeState(new SoldState())
       this.stateData.changeStringState('sold')
+      this.stateData.changeState(new SoldState())
+      
     }
 
 
   }
   public setOff(): void {
     this.stateData.price = 0
-    this.stateData.changeState(new InStockState());
     this.stateData.changeStringState('stock')
+    this.stateData.changeState(new InStockState());
+    
   }
 }
 class SoldState extends State {
@@ -133,9 +145,9 @@ class SoldState extends State {
 
 
 
-const apple = new Product(1, "Renault Magnum", 22);
-const apple2 = new Product(2, "Volvo FH12", 11);
-const apple3 = new Product(3, "DAF XF", 18);
+const apple = new Product(1, "Rapple", 22);
+const apple2 = new Product(2, "samsung", 11);
+const apple3 = new Product(3, "xiaomi", 18);
 const products: Product[] = [apple, apple2, apple3];
 function trucksLog() {
   products.forEach(element => {
@@ -156,13 +168,75 @@ function trucksLogId(id: number) {
 
   }
 }
-console.log(apple);
 
-trucksLog()
-let a = new StateData(1)
-a.raise()
-trucksLog()
-trucksLogId(1)
+
+let a = new StateData(Number(1))
+a.up()
+console.log(products[0]);
+
+
+for (let i: boolean = false; i === false;) {
+  const menu = Number(readlineSync.question('1.Показать все товары\n2.Показать данные товара по id\n3.Произвести манипуляции с товаром\n5.Завершить программу\n '))
+  switch (menu) {
+    case 1:
+      trucksLog()
+      break;
+    case 2:
+      const idNumber = Number(readlineSync.question('Введите id товара\n '))
+      trucksLogId(idNumber)
+      console.log(products[idNumber-1]);
+      break;
+    case 3:
+      const changeState = readlineSync.question('Введите id  и желаемый статус ( raise , up , off , winner ) через пробел\n ')
+      const newWords = changeState.trim().replace(/\s+/g, ' ').split(' ')
+      if (Number(newWords[0]) > 0 && Number(newWords[0]) <= products.length && typeof Number(newWords[0]) as 'number') {
+        let a = new StateData(Number(newWords[0]))
+        console.log(a);
+        
+        if (newWords[1] === 'raise') {
+          const changePrice= Number(readlineSync.question('Введите цену\n '))
+          if (changePrice>0) {
+            console.log(a.price);
+            a.raise(changePrice)
+            console.log(a.price);
+            
+          }
+          console.log('Вы выбрали raise');
+          
+        } else if (newWords[1] === 'up') {
+          console.log('Вы выбрали up');
+          a.up()
+        } else if (newWords[1] === 'off') {
+          console.log('Вы выбрали off');
+          a.off()
+        } else if(newWords[1] === 'winner') {
+          console.log('Вы выбрали winner');
+          a.winner()
+        } else {
+          
+          console.log('Некорректный ввод действия');
+        }
+        break
+      } else {
+        console.log('Некорректный ввод');
+        break
+      }
+    // case 4:
+    //   trucks.push(newTruck())
+    //   console.log('Успешно сгенерирован новый водитель');
+
+    //   break
+    case 5:
+      i = true
+      break;
+    default:
+      console.log('Введеное число не найдено в меню');
+      break
+
+  }
+}
+
+
 
 
 
