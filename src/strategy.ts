@@ -1,5 +1,5 @@
 
-import { Product } from "./mainData";
+import { Product,StateData } from "./mainData";
 import MD5 from "./MD5";
 export class Generator {
   constructor() {
@@ -42,4 +42,19 @@ export class ProductStatus {
   changing() {
     return this.strategy(this.product)
   }
+}
+
+
+export function newCode(id:number) {
+  let a = new StateData(Number(id))
+  let strategy
+  if (a.price > 0, a.price < 500) {
+    strategy = bronzeStrategy
+  } else if (a.price >= 500, a.price < 1000) {
+    strategy = silverStrategy
+  } else if (a.price >= 1000) {
+    strategy = goldStrategy
+  }
+  const productLlv = new ProductStatus(strategy, a)
+ return  productLlv.changing()
 }

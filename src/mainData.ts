@@ -1,13 +1,13 @@
 import * as readlineSync from "readline-sync";
 import MD5 from "./MD5";
-import { goldStrategy, bronzeStrategy, silverStrategy, ProductStatus } from "./strategy";
+import { goldStrategy, bronzeStrategy, silverStrategy, ProductStatus, newCode } from "./strategy";
 abstract class IProduct {
-  id: number;
-  name: string;
-  price: number;
-  honoraryСode?: any;
-  state?: State
-  stringState?: string
+  id: number
+  name: string
+  price: number
+  honoraryСode: string
+  state: State
+  stringState: string
 }
 
 export class Product extends IProduct {
@@ -18,6 +18,7 @@ export class Product extends IProduct {
     this.name = name
     this.price = price
     this.stringState = 'on base'
+    this.honoraryСode = 'none'
 
   }
 }
@@ -34,13 +35,14 @@ abstract class State {
   public abstract giveToTheWinner(): void;
 }
 
-class StateData extends IProduct {
+export class StateData extends IProduct {
   constructor(id: number) {
     super()
     this.id = id
     this.name = products[id - 1].name
     this.price = products[id - 1].price
     this.stringState = products[id - 1].stringState
+    this.honoraryСode = products[id - 1].honoraryСode
     if (this.stringState === 'sold') {
       this.state = new SoldState();
     } else if (this.stringState === 'sale') { this.state = new ForSaleState() }
@@ -48,6 +50,8 @@ class StateData extends IProduct {
     else { this.state = new InStockState() }
     products[id - 1] = this
     this.changeState(this.state)
+    products[id - 1].honoraryСode = this.honoraryСode
+  
 
 
 
@@ -59,6 +63,10 @@ class StateData extends IProduct {
   public changeStringState(state: string): void {
     this.stringState = state
     products[this.id - 1].stringState = this.stringState
+  }
+  public changeCode(code: string) {
+    this.honoraryСode = code
+    products[this.id - 1].honoraryСode = this.honoraryСode
   }
   public changePrice(price: number) {
     this.price = this.price + price
@@ -106,31 +114,26 @@ class ForSaleState extends State {
   public giveToTheWinner(): void {
     if (this.stateData.price === 0) console.log('Нельзя отдать продукт бесплатно');
     else {
-      this.stateData.changeStringState('sold')
+            this.stateData.changeStringState('sold')
       this.stateData.changeState(new SoldState())
-
+      this.stateData.changeCode(newCode(this.stateData.id))
+      console.log(this.stateData.honoraryСode);
+  
     }
-
-
   }
   public setOff(): void {
     this.stateData.price = 0
     this.stateData.changeStringState('stock')
     this.stateData.changeState(new InStockState());
-
   }
 }
 class SoldState extends State {
   public raisePrice(): void {
     console.log("Ошибка,  уже продан.");
-
   }
   public setUp(): void {
     console.log("Ошибка,  уже продан.");
-
-
   }
-
   public giveToTheWinner(): void {
     console.log("Ошибка,  уже продан.");
   }
@@ -139,17 +142,13 @@ class SoldState extends State {
   }
 }
 
-
-
-
-
 const apple = new Product(1, "Rapple", 500);
-const apple2 = new Product(2, "samsung",100);
+const apple2 = new Product(2, "samsung", 100);
 const apple3 = new Product(3, "xiaomi", 999999);
 const products: Product[] = [apple, apple2, apple3];
 function trucksLog() {
   products.forEach(element => {
-    console.log(`${element.id} | ${element.name} | ${element.price} | ${element.stringState}`)
+    console.log(`${element.id} | ${element.name} | ${element.price} | ${element.stringState} |  ${element.honoraryСode}`)
   });
 }
 function trucksLogId(id: number) {
@@ -168,18 +167,9 @@ function trucksLogId(id: number) {
 }
 
 
-let a = new StateData(Number(1))
-let strategy
-if (a.price > 0, a.price < 500) {
-  strategy = bronzeStrategy
-} else if (a.price >= 500, a.price < 1000) {
-  strategy = silverStrategy
-} else if (a.price >= 1000) {
-  strategy = goldStrategy
-}
-const productLlv = new ProductStatus(strategy, a)
-console.log(productLlv.changing());
-console.log(a.id);
+
+
+
 
 
 
@@ -202,15 +192,17 @@ for (let i: boolean = false; i === false;) {
       const newWords = changeState.trim().replace(/\s+/g, ' ').split(' ')
       if (Number(newWords[0]) > 0 && Number(newWords[0]) <= products.length && typeof Number(newWords[0]) as 'number') {
         let a = new StateData(Number(newWords[0]))
-        console.log(a);
+        
 
         if (newWords[1] === 'raise') {
           const changePrice = Number(readlineSync.question('Введите цену\n '))
           if (changePrice > 0) {
-            console.log(a.price);
             a.raise(changePrice)
-            console.log(a.price);
-
+            console.log('Цена повышена на '+changePrice);
+            
+          }else{
+            console.log('Введено меньше нуля или не число');
+            
           }
           console.log('Вы выбрали raise');
 
