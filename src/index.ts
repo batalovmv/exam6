@@ -1,5 +1,5 @@
-import * as readlineSync from "readline-sync";
-import { trucksLog, trucksLogId, products, StateData } from "./mainData";
+import * as readlineSync from "readline-sync"
+import { trucksLog, trucksLogId, products, StateData } from "./mainData"
 
 
 for (let i: boolean = false; i === false;) {
@@ -7,11 +7,11 @@ for (let i: boolean = false; i === false;) {
   switch (menu) {
     case 1:
       trucksLog()
-      break;
+      break
     case 2:
       const idNumber = Number(readlineSync.question('Введите id товара\n '))
       trucksLogId(idNumber)
-      break;
+      break
     case 3:
       const changeState = readlineSync.question('Введите id  и желаемый статус ( raise , up , off , winner ) через пробел\n ')
       const newWords = changeState.trim().replace(/\s+/g, ' ').split(' ')
@@ -23,37 +23,37 @@ for (let i: boolean = false; i === false;) {
           const changePrice = Number(readlineSync.question('Введите цену\n '))
           if (changePrice > 0) {
             a.raise(changePrice)
-            console.log('Цена повышена на ' + changePrice);
+            console.log('Цена повышена на ' + changePrice)
 
           } else {
-            console.log('Введено меньше нуля или не число');
+            console.log('Введено меньше нуля или не число')
 
           }
-          console.log('Вы выбрали raise');
+          console.log('Вы выбрали raise')
 
         } else if (newWords[1] === 'up') {
-          console.log('Вы выбрали up');
+          console.log('Вы выбрали up')
           a.up()
         } else if (newWords[1] === 'off') {
-          console.log('Вы выбрали off');
+          console.log('Вы выбрали off')
           a.off()
         } else if (newWords[1] === 'winner') {
-          console.log('Вы выбрали winner');
+          console.log('Вы выбрали winner')
           a.winner()
         } else {
 
-          console.log('Некорректный ввод действия');
+          console.log('Некорректный ввод действия')
         }
         break
       } else {
-        console.log('Некорректный ввод');
+        console.log('Некорректный ввод')
         break
       }
     case 4:
       i = true
-      break;
+      break
     default:
-      console.log('Введеное число не найдено в меню');
+      console.log('Введеное число не найдено в меню')
       break
 
   }
